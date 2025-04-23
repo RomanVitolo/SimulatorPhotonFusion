@@ -2,7 +2,8 @@
     "name": "PlayerAPI.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:a10ff188cbfd201409863c062b118e1d"
+        "GUID:a10ff188cbfd201409863c062b118e1d",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
