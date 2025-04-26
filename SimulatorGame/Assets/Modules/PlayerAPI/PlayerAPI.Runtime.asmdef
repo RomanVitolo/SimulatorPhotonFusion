@@ -1,13 +1,13 @@
 {
-    "name": "Network.Runtime",
+    "name": "PlayerAPI.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:f940cb0eb0b70ed41984f42609b4c2f4",
-        "GUID:a10ff188cbfd201409863c062b118e1d"
+        "GUID:539eeeca57ba2d4489bdd546b2a81714",
+        "GUID:4c439af29551d3346b0849577e7210b4"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

@@ -63,8 +63,10 @@
         "Fusion.Unity",
         "Assembly-CSharp",
         "Assembly-CSharp-firstpass",
-        "Fusion.Addons.Physics",
-        "Fusion.Addons.FSM"
+        "Core.Runtime",
+        "Network.Runtime",
+        "PlayerAPI.Runtime",
+        "InputSystem.Runtime"
     ],
     "UseSerializableDictionary": true,
     "NullChecksForNetworkedProperties": true,
