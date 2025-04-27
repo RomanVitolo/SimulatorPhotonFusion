@@ -46,7 +46,6 @@ namespace Network
 
             GUILayout.Label("Status: " + status);
 
-            // Mostrar mensajes de estado (join/leave)
             for (int i = statusMessages.Count - 1; i >= 0; i--)
             {
                 string msg = statusMessages[i];
@@ -74,7 +73,6 @@ namespace Network
             runner.ProvideInput = true;
             runner.AddCallbacks(this);
 
-            // Create the NetworkSceneInfo from the current scene
             var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
             var sceneInfo = new NetworkSceneInfo();
             if (scene.IsValid)
@@ -106,7 +104,7 @@ namespace Network
         {
             if (runner.IsServer)
             {
-                Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(-3f, 3f), 0f, UnityEngine.Random.Range(-3f, 3f));
+                Vector3 spawnPos = new(UnityEngine.Random.Range(-3f, 3f), 1f, UnityEngine.Random.Range(-3f, 3f));
                 NetworkObject obj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
                 playerObjects[player] = obj;
 
@@ -140,16 +138,6 @@ namespace Network
             Debug.Log("Disconnected: " + shutdownReason);
 
             status = GetFriendlyShutdownMessage(shutdownReason);
-
-            // Desactivar controles si el jugador sigue activo
-            if (localPlayerObject != null)
-            {
-                if (localPlayerObject.TryGetComponent<PlayerAPI.PlayerController>(out var controller))
-                    controller.enabled = false;
-
-                if (localPlayerObject.TryGetComponent<Core.FirstPersonCameraController>(out var cameraControl))
-                    cameraControl.enabled = false;
-            }
 
             Destroy(runner.gameObject);
             this.runner = null;

@@ -1,7 +1,10 @@
 {
     "name": "InputSystem.Runtime",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:539eeeca57ba2d4489bdd546b2a81714",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

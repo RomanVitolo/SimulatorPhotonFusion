@@ -1,165 +1,96 @@
+using Core;
+using Fusion;
+using InputSystem;
+using Network;
+using Unity.Cinemachine;
 using UnityEngine;
 
-namespace PlayerAPI
+namespace Player
 {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour
+    [RequireComponent(typeof(NetworkPlayer))]
+    [RequireComponent(typeof(PlayerInputHandler))]
+    public class PlayerController : NetworkBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Animator animator;
+        [Header("Settings")]
+        [SerializeField] private InputSettings inputSettings;
 
-        private CharacterController controller;
+        [SerializeField] private CinemachineCamera playerCamera;
 
-        [Header("Movement")]
-        [SerializeField] private float moveSpeed = 4f;
-        [SerializeField] private float sprintSpeed = 6f;
-        [SerializeField] private float speedChangeRate = 10f;
-        private float currentSpeed;
-        private Vector2 inputMove;
-        private bool isSprinting;
+        private CharacterController characterController;
+        private PlayerInputHandler inputHandler;
 
-        [Header("Jump & Gravity")]
-        [SerializeField] private float jumpHeight = 1.2f;
-        [SerializeField] private float gravity = -30f;
-        [SerializeField] private float fallMultiplier = 2.5f;
-        [SerializeField] private float jumpTimeout = 0.2f;
-        [SerializeField] private float fallTimeout = 0.1f;
-        private float jumpTimeoutDelta;
-        private float fallTimeoutDelta;
-        private float verticalVelocity;
-        private readonly float terminalVelocity = 53f;
-        private bool jumping;
+        private Vector3 velocity;
+        private bool isGrounded;
 
-        [Header("Ground Check")]
-        [SerializeField] private LayerMask groundLayers;
-        [SerializeField] private float groundOffset = -0.14f;
-        [SerializeField] private float groundRadius = 0.25f;
-        private bool grounded;
-
-        // Animator IDs
-        private int animIDSpeed;
-        private int animIDMotionSpeed;
-        private int animIDJump;
-        private int animIDFreeFall;
-        private int animIDGrounded;
+        private Vector3 moveDirection = Vector3.zero;
 
         private void Awake()
         {
-            controller = GetComponent<CharacterController>();
-
-            if (animator == null)
-                animator = GetComponentInChildren<Animator>();
-
-            AssignAnimationIDs();
+            characterController = GetComponent<CharacterController>();
+            inputHandler = GetComponent<PlayerInputHandler>();
         }
 
-        private void AssignAnimationIDs()
+        public override void Spawned()
         {
-            animIDSpeed = Animator.StringToHash("Speed");
-            animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-            animIDJump = Animator.StringToHash("Jump");
-            animIDFreeFall = Animator.StringToHash("FreeFall");
-            animIDGrounded = Animator.StringToHash("Grounded");
-        }
-
-        public void ManualUpdate()
-        {
-            GroundedCheck();
-            ApplyGravity();
-            Move();
-        }
-
-        public void SetInput(Vector2 moveInput)
-        {
-            inputMove = moveInput;
-        }
-
-        public void SetSprinting(bool value)
-        {
-            isSprinting = value;
-        }
-
-        public void Jump()
-        {
-            jumping = true;
-        }
-
-        private void GroundedCheck()
-        {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y + groundOffset, transform.position.z);
-            grounded = Physics.CheckSphere(spherePosition, groundRadius, groundLayers, QueryTriggerInteraction.Ignore);
-        }
-
-        private void Move()
-        {
-            Vector3 inputDir = new Vector3(inputMove.x, 0f, inputMove.y).normalized;
-            Vector3 moveDir = transform.TransformDirection(inputDir);
-
-            float targetSpeed = inputMove == Vector2.zero ? 0f : (isSprinting ? sprintSpeed : moveSpeed);
-
-            currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, speedChangeRate * Time.deltaTime);
-
-            Vector3 velocity = moveDir * currentSpeed + Vector3.up * verticalVelocity;
-            controller.Move(velocity * Time.deltaTime);
-
-            UpdateAnimation(inputMove.magnitude);
-        }
-
-        private void ApplyGravity()
-        {
-            if (grounded)
+            if (Object.HasInputAuthority)
             {
-                fallTimeoutDelta = fallTimeout;
-
-                if (verticalVelocity < 0f)
-                    verticalVelocity = -2f;
-
-                if (jumping && jumpTimeoutDelta <= 0f)
-                {
-                    verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                    jumping = false;
-                }
-
-                if (jumpTimeoutDelta > 0f)
-                    jumpTimeoutDelta -= Time.deltaTime;
+                playerCamera.Follow = transform;
+                playerCamera.LookAt = transform;
             }
             else
             {
-                jumpTimeoutDelta = jumpTimeout;
-
-                if (fallTimeoutDelta > 0f)
-                {
-                    fallTimeoutDelta -= Time.deltaTime;
-                }
-
-                float gravityScale = verticalVelocity < 0 ? fallMultiplier : 1f;
-                verticalVelocity += gravity * gravityScale * Time.deltaTime;
-                verticalVelocity = Mathf.Clamp(verticalVelocity, -terminalVelocity, float.MaxValue);
+                if (playerCamera != null)
+                    playerCamera.gameObject.SetActive(false);
             }
         }
 
-        private void UpdateAnimation(float inputMagnitude)
+        private void Update()
         {
-            if (animator == null) return;
+            if (!Object.HasInputAuthority) return;
 
-            animator.SetFloat(animIDSpeed, currentSpeed);
-            animator.SetFloat(animIDMotionSpeed, Mathf.Clamp01(inputMagnitude));
-            animator.SetBool(animIDGrounded, grounded);
-            animator.SetBool(animIDJump, jumping);
-            animator.SetBool(animIDFreeFall, !grounded && fallTimeoutDelta <= 0f);
+            HandleMovement();
+            HandleRotation();
         }
 
-        // Para depuración del ground check
-        private void OnDrawGizmosSelected()
+        private void HandleMovement()
         {
-            Gizmos.color = grounded ? new Color(0, 1, 0, 0.3f) : new Color(1, 0, 0, 0.3f);
-            Vector3 spherePos = new Vector3(transform.position.x, transform.position.y + groundOffset, transform.position.z);
-            Gizmos.DrawSphere(spherePos, groundRadius);
+            Vector2 input = inputHandler.GetMovementInput();
+            bool isSprinting = inputHandler.GetSprintInput();
+            float targetSpeed = isSprinting ? inputSettings.sprintSpeed : inputSettings.walkSpeed;
+
+            Vector3 horizontalMove = (transform.right * input.x + transform.forward * input.y).normalized * targetSpeed;
+
+            isGrounded = characterController.isGrounded;
+
+            if (isGrounded && velocity.y < 0)
+                velocity.y = -2f;
+
+            if (isGrounded && inputHandler.ConsumeJumpInput())
+            {
+                velocity.y = Mathf.Sqrt(inputSettings.jumpForce * -2f * inputSettings.gravity);
+            }
+
+            velocity.y += inputSettings.gravity * Time.deltaTime;
+
+            // Combinar movimiento horizontal y vertical en un solo Vector3
+            moveDirection = new Vector3(horizontalMove.x, velocity.y, horizontalMove.z);
+
+            characterController.Move(moveDirection * Time.deltaTime);
         }
 
-        // Exponer estados (opcional)
-        public bool IsGrounded => grounded;
-        public float CurrentSpeed => currentSpeed;
-        public bool IsJumping => jumping;
+        private void HandleRotation()
+        {
+            if (playerCamera == null) return;
+
+            Vector3 camForward = playerCamera.transform.forward;
+            camForward.y = 0f;
+            camForward.Normalize();
+
+            if (camForward.sqrMagnitude > 0.001f)
+            {
+                transform.forward = camForward;
+            }
+        }
     }
 }

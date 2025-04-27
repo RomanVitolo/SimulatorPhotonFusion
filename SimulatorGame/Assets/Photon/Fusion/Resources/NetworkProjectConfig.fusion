@@ -65,7 +65,7 @@
         "Assembly-CSharp-firstpass",
         "Core.Runtime",
         "Network.Runtime",
-        "PlayerAPI.Runtime",
+        "Player.Runtime",
         "InputSystem.Runtime"
     ],
     "UseSerializableDictionary": true,
