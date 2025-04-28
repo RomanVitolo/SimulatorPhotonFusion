@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a02673c8b4a54a428c200e26c097b30, type: 3}
   m_Name: DefaultInputSettings
   m_EditorClassIdentifier: 
-  walkSpeed: 3
-  sprintSpeed: 6
-  jumpForce: 2
-  gravity: -20
+  walkSpeed: 6
+  sprintSpeed: 12
+  jumpForce: 2.5
+  gravity: -30
   mouseSensitivity: 5
   verticalClamp: 80

@@ -10,6 +10,7 @@ namespace Player
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkPlayer))]
     [RequireComponent(typeof(PlayerInputHandler))]
+    [RequireComponent(typeof(NetworkTransform))]
     public class PlayerController : NetworkBehaviour
     {
         [Header("Settings")]
@@ -19,6 +20,7 @@ namespace Player
 
         private CharacterController characterController;
         private PlayerInputHandler inputHandler;
+        private NetworkPlayer networkPlayer;
 
         private Vector3 velocity;
         private bool isGrounded;
@@ -29,29 +31,10 @@ namespace Player
         {
             characterController = GetComponent<CharacterController>();
             inputHandler = GetComponent<PlayerInputHandler>();
+            networkPlayer = GetComponent<NetworkPlayer>();
         }
 
-        public override void Spawned()
-        {
-            if (Object.HasInputAuthority)
-            {
-                playerCamera.Follow = transform;
-                playerCamera.LookAt = transform;
-            }
-            else
-            {
-                if (playerCamera != null)
-                    playerCamera.gameObject.SetActive(false);
-            }
-        }
-
-        private void Update()
-        {
-            if (!Object.HasInputAuthority) return;
-
-            HandleMovement();
-            HandleRotation();
-        }
+        public override void FixedUpdateNetwork() => HandleMovement();
 
         private void HandleMovement()
         {
@@ -73,24 +56,13 @@ namespace Player
 
             velocity.y += inputSettings.gravity * Time.deltaTime;
 
-            // Combinar movimiento horizontal y vertical en un solo Vector3
             moveDirection = new Vector3(horizontalMove.x, velocity.y, horizontalMove.z);
 
             characterController.Move(moveDirection * Time.deltaTime);
+
+            SyncPosition();
         }
 
-        private void HandleRotation()
-        {
-            if (playerCamera == null) return;
-
-            Vector3 camForward = playerCamera.transform.forward;
-            camForward.y = 0f;
-            camForward.Normalize();
-
-            if (camForward.sqrMagnitude > 0.001f)
-            {
-                transform.forward = camForward;
-            }
-        }
+        private void SyncPosition() => networkPlayer?.SyncMovement(transform.position);
     }
 }

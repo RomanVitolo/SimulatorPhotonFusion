@@ -102,23 +102,24 @@ namespace Network
 
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            if (runner.IsServer)
-            {
-                Vector3 spawnPos = new(UnityEngine.Random.Range(-3f, 3f), 1f, UnityEngine.Random.Range(-3f, 3f));
-                NetworkObject obj = runner.Spawn(playerPrefab, spawnPos, Quaternion.identity, player);
-                playerObjects[player] = obj;
+            Debug.Log($"Player Joined: {player.PlayerId}");
 
-                if (runner.LocalPlayer == player)
-                {
-                    localPlayerObject = obj;
-                }
-            }
+            if (!runner.IsServer) return;
 
-            string message = $"Player {player.PlayerId} joined the game";
-            statusMessages.Add(message);
-            statusTimers[message] = Time.time + messageDisplayTime;
+            Vector3 spawnPos = new(UnityEngine.Random.Range(-5f, 5f), 2f, UnityEngine.Random.Range(-5f, 5f));
+            Quaternion spawnRot = Quaternion.identity;
+            NetworkObject obj = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity, player);
+
+            if (obj.TryGetComponent(out NetworkTransform networkTransform))
+                networkTransform.Teleport(spawnPos, spawnRot);
+            else
+                obj.transform.SetPositionAndRotation(spawnPos, spawnRot);
+
+            playerObjects[player] = obj;
+
+            if (player == runner.LocalPlayer)
+                localPlayerObject = obj;
         }
-
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
