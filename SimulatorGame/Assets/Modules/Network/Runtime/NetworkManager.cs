@@ -1,15 +1,20 @@
-using Fusion;
+﻿using Fusion;
 using Fusion.Sockets;
+using InputSystem;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace Network
 {
     public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
-        [SerializeField] private GameObject playerPrefab;
+        public static NetworkManager Instance;
+
+        [SerializeField] private NetworkPrefabRef playerPrefabRef;
+        [SerializeField] private InputActionAsset defaultInputActions;
 
         private NetworkRunner runner;
 
@@ -20,7 +25,9 @@ namespace Network
         private readonly float messageDisplayTime = 3f;
         private readonly Dictionary<string, float> statusTimers = new();
 
-        private NetworkObject localPlayerObject;
+        private PlayerInputHandler _inputHandler;
+
+        private void Awake() => Instance = this;
 
         private void OnGUI()
         {
@@ -61,6 +68,7 @@ namespace Network
             GUILayout.EndArea();
         }
 
+        public void RegisterInputHandler(PlayerInputHandler handler) => _inputHandler = handler;
 
         private async void StartGame(GameMode mode)
         {
@@ -87,6 +95,8 @@ namespace Network
             });
 
             status = result.Ok ? "Connected as " + mode : "Failed to start: " + result.ShutdownReason;
+
+            Debug.Log($"[StartGame] ProvideInput={runner.ProvideInput}");
         }
 
         private string GetFriendlyShutdownMessage(ShutdownReason reason)
@@ -102,23 +112,15 @@ namespace Network
 
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            Debug.Log($"Player Joined: {player.PlayerId}");
-
             if (!runner.IsServer) return;
 
-            Vector3 spawnPos = new(UnityEngine.Random.Range(-5f, 5f), 2f, UnityEngine.Random.Range(-5f, 5f));
-            Quaternion spawnRot = Quaternion.identity;
-            NetworkObject obj = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity, player);
+            Vector3 pos = new(UnityEngine.Random.Range(-5f, 5f), 1f, UnityEngine.Random.Range(-5f, 5f));
 
-            if (obj.TryGetComponent(out NetworkTransform networkTransform))
-                networkTransform.Teleport(spawnPos, spawnRot);
-            else
-                obj.transform.SetPositionAndRotation(spawnPos, spawnRot);
+            NetworkObject obj = runner.Spawn(playerPrefabRef, pos, Quaternion.identity, player);
+
+            runner.SetPlayerObject(player, obj);
 
             playerObjects[player] = obj;
-
-            if (player == runner.LocalPlayer)
-                localPlayerObject = obj;
         }
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -143,11 +145,11 @@ namespace Network
             Destroy(runner.gameObject);
             this.runner = null;
             playerObjects.Clear();
-            localPlayerObject = null;
         }
 
+        public void OnInput(NetworkRunner runner, NetworkInput input){ }
+
         // Required Fusion callbacks (even if unused)
-        public void OnInput(NetworkRunner runner, NetworkInput input) { }
         public void OnConnectedToServer(NetworkRunner runner) { }
         public void OnDisconnectedFromServer(NetworkRunner runner) { }
         public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }

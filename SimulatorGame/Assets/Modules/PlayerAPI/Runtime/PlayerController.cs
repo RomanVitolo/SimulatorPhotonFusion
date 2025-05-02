@@ -1,68 +1,67 @@
-using Core;
 using Fusion;
-using InputSystem;
-using Network;
-using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Player
 {
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkPlayer))]
-    [RequireComponent(typeof(PlayerInputHandler))]
-    [RequireComponent(typeof(NetworkTransform))]
     public class PlayerController : NetworkBehaviour
     {
         [Header("Settings")]
-        [SerializeField] private InputSettings inputSettings;
-
-        [SerializeField] private CinemachineCamera playerCamera;
+        [SerializeField] private Core.InputSettings inputSettings;
 
         private CharacterController characterController;
-        private PlayerInputHandler inputHandler;
-        private NetworkPlayer networkPlayer;
 
         private Vector3 velocity;
         private bool isGrounded;
 
         private Vector3 moveDirection = Vector3.zero;
 
-        private void Awake()
+        private void Awake() => characterController = GetComponent<CharacterController>();
+
+        public override void Spawned()
         {
-            characterController = GetComponent<CharacterController>();
-            inputHandler = GetComponent<PlayerInputHandler>();
-            networkPlayer = GetComponent<NetworkPlayer>();
+            Debug.Log($"[Spawned] {name} - StateAuthority: {HasStateAuthority}, InputAuthority: {HasInputAuthority}");
+            characterController.enabled = HasInputAuthority;
         }
 
-        public override void FixedUpdateNetwork() => HandleMovement();
-
-        private void HandleMovement()
+        public override void FixedUpdateNetwork()
         {
-            Vector2 input = inputHandler.GetMovementInput();
-            bool isSprinting = inputHandler.GetSprintInput();
-            float targetSpeed = isSprinting ? inputSettings.sprintSpeed : inputSettings.walkSpeed;
+            if (!HasInputAuthority)
+            {
+                Debug.Log($"[FixedUpdateNetwork] {name} SIN autoridad de estado – no se ejecuta");
+                return;
+            }
 
-            Vector3 horizontalMove = (transform.right * input.x + transform.forward * input.y).normalized * targetSpeed;
+            if (GetInput(out NetworkInputData data))
+            {
+                Debug.Log($"[FixedUpdateNetwork] {name} recibe input {data.movementInput}");
+                HandleMovement(data);
+            }
+            else
+            {
+                Debug.Log($"[FixedUpdateNetwork] {name} NO recibe input este tick");
+            }
+        }
+
+        private void HandleMovement(NetworkInputData data)
+        {
+            float targetSpeed = data.sprintPressed ? inputSettings.sprintSpeed : inputSettings.walkSpeed;
+
+            Vector3 horizontalMove = (transform.right * data.movementInput.x + transform.forward * data.movementInput.y).normalized * targetSpeed;
 
             isGrounded = characterController.isGrounded;
 
             if (isGrounded && velocity.y < 0)
                 velocity.y = -2f;
 
-            if (isGrounded && inputHandler.ConsumeJumpInput())
+            if (isGrounded && data.jumpPressed)
             {
                 velocity.y = Mathf.Sqrt(inputSettings.jumpForce * -2f * inputSettings.gravity);
             }
 
-            velocity.y += inputSettings.gravity * Time.deltaTime;
-
+            velocity.y += inputSettings.gravity * Runner.DeltaTime;
             moveDirection = new Vector3(horizontalMove.x, velocity.y, horizontalMove.z);
-
-            characterController.Move(moveDirection * Time.deltaTime);
-
-            SyncPosition();
+            characterController.Move(moveDirection * Runner.DeltaTime);
         }
-
-        private void SyncPosition() => networkPlayer?.SyncMovement(transform.position);
     }
 }

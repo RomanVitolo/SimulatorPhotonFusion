@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Network
 {
-    [RequireComponent(typeof(NetworkObject))]
     public class NetworkAuthorityHandler : NetworkBehaviour
     {
         [Header("Components to Enable If Has Input Authority")]
