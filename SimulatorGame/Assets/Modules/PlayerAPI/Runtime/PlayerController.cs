@@ -18,11 +18,15 @@ namespace Player
 
         private void Awake() => characterController = GetComponent<CharacterController>();
 
-        public override void Spawned() => characterController.enabled = HasInputAuthority;
+        public override void Spawned()
+        {
+            characterController.enabled = Object.HasInputAuthority;
+            enabled = Object.HasInputAuthority;
+        }
 
         public override void FixedUpdateNetwork()
         {
-            if (!HasStateAuthority) return;
+            if (!Object.HasStateAuthority) return;
 
             if (GetInput(out NetworkInputData data)) HandleMovement(data);
         }

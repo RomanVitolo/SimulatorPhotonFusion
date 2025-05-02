@@ -9,14 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6357693304008997882}
-  - component: {fileID: 1554742120879700079}
   - component: {fileID: 7277268038870694844}
   - component: {fileID: 578785989733769754}
   - component: {fileID: 1369848028195739969}
   - component: {fileID: 4046931941010570045}
   - component: {fileID: 7660388910053742807}
   - component: {fileID: 7384363737289931054}
-  - component: {fileID: 7111773762195154217}
+  - component: {fileID: 6075817946166004279}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -38,24 +37,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1432902826353190101}
-  - {fileID: 4261809012567571031}
+  - {fileID: 3394988461769773830}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1554742120879700079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2976233208781783363}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bca658f23ea0ab54fa7ec7bd1c0d7134, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  componentsToEnable: []
-  objectsToEnable:
-  - {fileID: 4382008717908962149}
 --- !u!114 &7277268038870694844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,11 +57,10 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 1554742120879700079}
   - {fileID: 1369848028195739969}
   - {fileID: 4046931941010570045}
   - {fileID: 7660388910053742807}
-  - {fileID: 7111773762195154217}
+  - {fileID: 6075817946166004279}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &578785989733769754
 CharacterController:
@@ -178,7 +161,7 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &7111773762195154217
+--- !u!114 &6075817946166004279
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,10 +170,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2976233208781783363}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd74f8b7926de614994adede3973e475, type: 3}
+  m_Script: {fileID: 11500000, guid: bb7cbbe612e666241ae2eec685611abb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 4261809012567571031}
+  cameraHolder: {fileID: 3394988461769773830}
   inputSettings: {fileID: 11400000, guid: de06d857050d27e4598744398e844564, type: 2}
 --- !u!1 &4382008717908962149
 GameObject:
@@ -217,12 +200,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4382008717908962149}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6357693304008997882}
+  m_Father: {fileID: 3394988461769773830}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4243695421480869242
 MonoBehaviour:
@@ -353,3 +336,35 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &7528183397393348994
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3394988461769773830}
+  m_Layer: 0
+  m_Name: CameraHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3394988461769773830
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7528183397393348994}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4261809012567571031}
+  m_Father: {fileID: 6357693304008997882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
