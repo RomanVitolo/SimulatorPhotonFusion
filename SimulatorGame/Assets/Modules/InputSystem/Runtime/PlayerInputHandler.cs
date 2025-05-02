@@ -21,16 +21,6 @@ namespace InputSystem
 
         private Action<InputAction.CallbackContext> jumpCallback;
 
-        public bool ConsumeJumpInput()
-        {
-            if (jumpPressed)
-            {
-                jumpPressed = false;
-                return true;
-            }
-            return false;
-        }
-
         private void Awake()
         {
             playerInput = GetComponent<PlayerInput>();
@@ -51,11 +41,7 @@ namespace InputSystem
 
         public override void Spawned()
         {
-            if (HasInputAuthority)
-            {
-                Runner.AddCallbacks(this);
-                Debug.Log("[PlayerInputHandler] Registrado como proveedor de input");
-            }
+            if (HasInputAuthority) Runner.AddCallbacks(this);
         }
 
         public void OnInput(NetworkRunner runner, NetworkInput input)
@@ -65,8 +51,6 @@ namespace InputSystem
             var move = GetMovementInput();
             var sprint = GetSprintInput();
             var jump = ConsumeJumpInput();
-
-            Debug.Log($"[OnInput] Enviando: move={move}, sprint={sprint}, jump={jump}");
 
             input.Set(new NetworkInputData
             {
@@ -86,6 +70,16 @@ namespace InputSystem
 
         public Vector2 GetMovementInput() => movementInput;
         public bool GetSprintInput() => sprintPressed;
+
+        public bool ConsumeJumpInput()
+        {
+            if (jumpPressed)
+            {
+                jumpPressed = false;
+                return true;
+            }
+            return false;
+        }
 
         public void OnConnectedToServer(NetworkRunner runner) { }
         public void OnDisconnectedFromServer(NetworkRunner runner) { }

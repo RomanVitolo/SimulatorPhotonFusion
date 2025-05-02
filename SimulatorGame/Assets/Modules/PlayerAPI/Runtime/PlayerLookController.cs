@@ -14,8 +14,7 @@ namespace Player
 
         public override void FixedUpdateNetwork()
         {
-            if (!HasInputAuthority)
-                return;
+            if (!HasInputAuthority) return;
 
             HandleLook();
         }

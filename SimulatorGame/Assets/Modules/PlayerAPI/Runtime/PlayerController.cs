@@ -18,27 +18,13 @@ namespace Player
 
         private void Awake() => characterController = GetComponent<CharacterController>();
 
-        public override void Spawned()
-        {
-            Debug.Log($"[Spawned] {name} - StateAuthority: {HasStateAuthority}, InputAuthority: {HasInputAuthority}");
-            characterController.enabled = HasInputAuthority;
-        }
+        public override void Spawned() => characterController.enabled = HasInputAuthority;
 
         public override void FixedUpdateNetwork()
         {
-            if (!HasStateAuthority)
-            {
-                Debug.Log($"[FixedUpdateNetwork] {name} SIN autoridad de estado – no se ejecuta");
-                return;
-            }
+            if (!HasStateAuthority) return;
 
-            if (GetInput(out NetworkInputData data))
-            {
-                Debug.Log($"[FixedUpdateNetwork] {name} recibe input {data.movementInput}");
-                HandleMovement(data);
-            }
-            else
-                Debug.Log($"[FixedUpdateNetwork] {name} NO recibe input este tick");
+            if (GetInput(out NetworkInputData data)) HandleMovement(data);
         }
 
         private void HandleMovement(NetworkInputData data)
