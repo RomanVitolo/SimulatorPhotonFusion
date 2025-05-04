@@ -6,13 +6,13 @@ namespace Core
     public class InputSettings : ScriptableObject
     {
         [Header("Movement Settings")]
-        public float walkSpeed = 5f;
+        public float walkSpeed = 4f;
         public float sprintSpeed = 8f;
-        public float jumpForce = 5f;
-        public float gravity = -9.81f;
+        public float jumpForce = 2.5f;
+        public float gravity = -30f;
 
         [Header("Mouse Settings")]
-        public float mouseSensitivity = 2f;
+        public float mouseSensitivity = 7f;
         public float verticalClamp = 80f;
     }
 }

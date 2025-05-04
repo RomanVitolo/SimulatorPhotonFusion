@@ -13,11 +13,8 @@ namespace Player
 
         public override void Spawned()
         {
-            if (!Object.HasInputAuthority)
-            {
-                cameraHolder.gameObject.SetActive(false);
-                enabled = false;
-            }
+            cameraHolder.gameObject.SetActive(Object.HasInputAuthority);
+            enabled = Object.HasInputAuthority;
         }
 
         public override void FixedUpdateNetwork()

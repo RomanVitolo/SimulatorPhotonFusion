@@ -16,6 +16,9 @@ namespace Player
 
         private Vector3 moveDirection = Vector3.zero;
 
+        public Vector3 MoveDirection { get => moveDirection; }
+        public bool IsGrounded { get => isGrounded; }
+
         private void Awake() => characterController = GetComponent<CharacterController>();
 
         public override void Spawned()
