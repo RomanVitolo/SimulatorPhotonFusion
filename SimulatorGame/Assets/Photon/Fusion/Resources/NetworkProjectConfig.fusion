@@ -66,7 +66,7 @@
         "InputSystem.Runtime",
         "Network.Runtime",
         "Player.Runtime",
-        "Player.Runtime"
+        "Core.Runtime"
     ],
     "UseSerializableDictionary": true,
     "NullChecksForNetworkedProperties": true,

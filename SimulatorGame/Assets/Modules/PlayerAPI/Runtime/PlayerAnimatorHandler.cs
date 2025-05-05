@@ -25,12 +25,7 @@ namespace Player
 
         public override void Spawned() => enabled = Object.HasInputAuthority;
 
-        public override void FixedUpdateNetwork()
-        {
-            if (!Object.HasStateAuthority) return;
-            
-            UpdateAnimationStates();
-        }
+        public override void FixedUpdateNetwork() => UpdateAnimationStates();
 
         private void UpdateAnimationStates()
         {

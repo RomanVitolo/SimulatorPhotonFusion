@@ -29,13 +29,13 @@ namespace Player
 
         public override void FixedUpdateNetwork()
         {
-            if (!Object.HasStateAuthority) return;
-
             if (GetInput(out NetworkInputData data)) HandleMovement(data);
         }
 
         private void HandleMovement(NetworkInputData data)
         {
+            Debug.Log($"[{Runner.LocalPlayer}] HasInputAuthority: {Object.HasInputAuthority}, Input: {data.movementInput}");
+
             float targetSpeed = data.sprintPressed ? inputSettings.sprintSpeed : inputSettings.walkSpeed;
 
             Vector3 horizontalMove = (transform.right * data.movementInput.x + transform.forward * data.movementInput.y).normalized * targetSpeed;

@@ -17,15 +17,11 @@ namespace Player
             enabled = Object.HasInputAuthority;
         }
 
-        public override void FixedUpdateNetwork()
-        {
-            if (!Object.HasInputAuthority) return;
-
-            HandleLook();
-        }
+        public override void FixedUpdateNetwork() => HandleLook();
 
         private void HandleLook()
         {
+            Debug.Log($"[{Runner.LocalPlayer}] HasInputAuthority: {Object.HasInputAuthority}");
             float mouseX = Input.GetAxis("Mouse X") * inputSettings.mouseSensitivity;
             float mouseY = Input.GetAxis("Mouse Y") * inputSettings.mouseSensitivity;
 

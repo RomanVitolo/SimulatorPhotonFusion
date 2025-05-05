@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace InputSystem
 {
+    [RequireComponent(typeof(PlayerInput))]
     public class PlayerInputHandler : NetworkBehaviour, INetworkRunnerCallbacks
     {
         private Vector2 movementInput;
@@ -47,7 +48,7 @@ namespace InputSystem
 
         public void OnInput(NetworkRunner runner, NetworkInput input)
         {
-            if (!Object.HasInputAuthority) return;
+            Debug.Log($"[{Runner.LocalPlayer}] HasInputAuthority: {Object.HasInputAuthority}");
 
             var move = GetMovementInput();
             var sprint = GetSprintInput();
