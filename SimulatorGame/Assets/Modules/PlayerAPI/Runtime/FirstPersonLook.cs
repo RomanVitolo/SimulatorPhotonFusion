@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Player
 {
@@ -14,10 +15,15 @@ namespace Player
         public override void Spawned()
         {
             cameraHolder.gameObject.SetActive(Object.HasInputAuthority);
-            enabled = Object.HasInputAuthority;
+            enabled = HasStateAuthority;
         }
 
-        public override void FixedUpdateNetwork() => HandleLook();
+        public override void FixedUpdateNetwork()
+        {
+            if (!HasStateAuthority) return;
+
+            HandleLook();
+        }
 
         private void HandleLook()
         {

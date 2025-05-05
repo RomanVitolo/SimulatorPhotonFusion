@@ -42,17 +42,16 @@ namespace InputSystem
 
         public override void Spawned()
         {
-            if (Object.HasInputAuthority) Runner.AddCallbacks(this);
-            enabled = Object.HasInputAuthority;
+            if (HasInputAuthority) Runner.AddCallbacks(this);
         }
 
         public void OnInput(NetworkRunner runner, NetworkInput input)
         {
-            Debug.Log($"[{Runner.LocalPlayer}] HasInputAuthority: {Object.HasInputAuthority}");
-
             var move = GetMovementInput();
             var sprint = GetSprintInput();
             var jump = ConsumeJumpInput();
+
+            Debug.Log($"[OnInput] Enviando: move={move}, sprint={sprint}, jump={jump}");
 
             input.Set(new NetworkInputData
             {

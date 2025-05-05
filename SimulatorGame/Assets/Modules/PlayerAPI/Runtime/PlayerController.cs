@@ -23,12 +23,14 @@ namespace Player
 
         public override void Spawned()
         {
-            characterController.enabled = Object.HasInputAuthority;
-            enabled = Object.HasInputAuthority;
+            characterController.enabled = HasInputAuthority;
+            enabled = HasStateAuthority;
         }
 
         public override void FixedUpdateNetwork()
         {
+            if (!HasStateAuthority) return;
+
             if (GetInput(out NetworkInputData data)) HandleMovement(data);
         }
 
